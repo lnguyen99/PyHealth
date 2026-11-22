@@ -16,7 +16,7 @@ evaluates. Do NOT ``pip install auton-survival`` — it pins torch 1.13 /
 numpy 1.24 / pandas 1.5 and will clash with PyHealth; the code is
 ported, not imported.
 
-What it shows: the full Option 2 pipeline — load SUPPORT2 through
+What it shows: the full pipeline — load SUPPORT2 through
 ``Support2Dataset`` + ``SurvivalTimeToEventSupport2`` (27 features, 8,873
 complete-case patients), standardise features with a scaler fitted on the
 training split only, fit with ``model.fit()``, and report time-dependent
@@ -57,8 +57,8 @@ So the mixture beats the single Cox model on discrimination (C-td
 +0.026, C-index +0.004) and on calibration at the 75th percentile
 (ECE 0.0438 vs 0.0529). Both sit below the paper's 5-fold numbers, as
 expected for one untuned fold on the 27-feature PyHealth task (the
-paper uses 44 features and 5-fold CV); the full comparison is Phase 3
-(``--folds 5``). These numbers reproduce the equivalence check that
+paper uses 44 features and 5-fold CV); the full comparison runs with
+``--folds 5``. These numbers reproduce the equivalence check that
 ``model.fit()`` matches the in-model EM loop exactly (K=3 C-td 0.6436,
 final val Q-loss 4.6408).
 
