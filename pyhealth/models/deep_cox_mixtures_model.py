@@ -118,8 +118,13 @@ class DeepCoxMixturesModel(DeepCoxMixturesScript):
             durations[perm],
             events[perm],
         )
-        # Baselines are refit with the sampled-hard assignment even for
-        # the posterior-weighted loss, matching the reference script.
+        # The baseline refit follows the training assignment mode, so the
+        # mode is switchable via `typ`: 'hard' refits with argmax assignment
+        # and 'soft' with sampled-hard assignment. Only 'true-soft' maps to
+        # 'soft', because it is a posterior-weighted loss (not an assignment
+        # mode) and the reference refits its baselines with sampled-hard
+        # assignment. Note this differs from the reference script, which
+        # hardcodes typ='soft' for the refit even when the M-step uses 'hard'.
         baseline_typ = "soft" if typ == "true-soft" else typ
         n_batches = (features.shape[0] // batch_size) + 1
         for i in range(n_batches):
