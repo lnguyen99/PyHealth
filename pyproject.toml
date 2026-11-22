@@ -104,6 +104,9 @@ ptbxl = [
 xgboost = [
   "xgboost>=2.0",
 ]
+survival = [
+  "scikit-survival>=0.24",
+]
 lint = [
   "ruff~=0.15",
 ]
