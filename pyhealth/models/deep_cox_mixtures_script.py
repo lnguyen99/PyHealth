@@ -37,10 +37,11 @@ an exact match.
 
 from __future__ import annotations
 
+import importlib
+
 import numpy as np
 import torch
 from scipy.interpolate import UnivariateSpline
-from sksurv.linear_model.coxph import BreslowEstimator
 from torch import Tensor, nn
 
 from pyhealth.datasets import SampleDataset
@@ -48,6 +49,22 @@ from pyhealth.models.base_model import BaseModel
 from pyhealth.processors import LabelProcessor
 
 __all__ = ["DeepCoxMixturesScript", "DeepCoxMixturesTorch"]
+
+
+def _import_breslow_estimator():
+    """Import ``BreslowEstimator`` from the optional scikit-survival package.
+
+    scikit-survival is an optional dependency (``pip install 'pyhealth[survival]'``),
+    so it is imported lazily here instead of at module level — importing this
+    module must not fail on a system without it installed.
+    """
+    try:
+        return importlib.import_module("sksurv.linear_model.coxph").BreslowEstimator
+    except ImportError as e:
+        raise ImportError(
+            "DeepCoxMixtures needs the optional scikit-survival package: "
+            "pip install 'pyhealth[survival]' (or pip install scikit-survival)."
+        ) from e
 
 
 def _value_tensor(value: Tensor | tuple[Tensor, ...]) -> Tensor:
@@ -472,6 +489,7 @@ class DeepCoxMixturesScript(BaseModel):
         durations_np = durations.detach().cpu().numpy()
         events_np = events.detach().cpu().numpy()
         group_np = group.detach().cpu().numpy()
+        BreslowEstimator = _import_breslow_estimator()
         splines: dict[int, UnivariateSpline] = {}
         max_time = float(durations_np.max()) if n else 1.0
         for i in range(self.k):
