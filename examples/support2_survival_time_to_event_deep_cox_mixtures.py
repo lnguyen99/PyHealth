@@ -9,7 +9,7 @@ encoder: conditioned on latent group Z the proportional-hazards assumption
 holds, and each group's baseline survival is a spline-interpolated Breslow
 estimator. This script trains the model through
 ``model.fit(train_loader, val_loader)``: the EM loop lives inside the
-model (``DeepCoxMixturesModelEM.fit``, ported from the authors' reference
+model (``DeepCoxMixturesModel.fit``, ported from the authors' reference
 implementation in auton-survival, ``auton_survival/models/dcm/``), and
 this script builds the dataloaders, standardises the features, and
 evaluates. Do NOT ``pip install auton-survival`` — it pins torch 1.13 /
@@ -99,7 +99,7 @@ from pyhealth.metrics.survival import (
     ipcw_brier_score,
 )
 from pyhealth.metrics.survival_curve import concordance_td
-from pyhealth.models import DeepCoxMixturesFitEM
+from pyhealth.models import DeepCoxMixtures
 from pyhealth.tasks import SurvivalTimeToEventSupport2
 
 SUPPORT_URL = "https://archive.ics.uci.edu/static/public/880/data.csv"
@@ -234,7 +234,7 @@ def survival_ece(
 
 
 def train_model(
-    model: DeepCoxMixturesFitEM,
+    model: DeepCoxMixtures,
     x_train: torch.Tensor,
     t_train: torch.Tensor,
     e_train: torch.Tensor,
@@ -248,7 +248,7 @@ def train_model(
     assignment: str = "sampled-hard",
     update_splines_after: int = 10,
     seed: int = 42,
-) -> tuple[DeepCoxMixturesFitEM, list[float], int]:
+) -> tuple[DeepCoxMixtures, list[float], int]:
     """Train through ``model.fit()`` on PyHealth dataloaders.
 
     The EM loop lives in the model; this function only builds
@@ -286,7 +286,7 @@ def train_model(
 
 @torch.no_grad()
 def evaluate(
-    model: DeepCoxMixturesFitEM,
+    model: DeepCoxMixtures,
     x: torch.Tensor,
     durations: np.ndarray,
     events: np.ndarray,
@@ -340,7 +340,7 @@ def run_fold(
     t_val = to_tensor(durations[val_idx])
     e_val = to_tensor(events[val_idx])
     dataset = make_sample_dataset(x_train_raw, durations[train_idx], events[train_idx])
-    model = DeepCoxMixturesFitEM(
+    model = DeepCoxMixtures(
         dataset,
         input_dim=features.shape[1],
         k=args.k,
